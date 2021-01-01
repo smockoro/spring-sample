@@ -24,7 +24,7 @@ public class AwsSqsMessageProducer implements UserMessanger {
     public void sendMessage(User user) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         SendMessageRequest sendMessageRequest = new SendMessageRequest()
-                .withQueueUrl("http://localhost:4566/000000000000/foo-queue5")
+                .withQueueUrl("http://localhost:4566/000000000000/foo-queue")
                 .withMessageBody(objectMapper.writeValueAsString(user))
                 .withDelaySeconds(5);
         SendMessageResult result = amazonSQS.sendMessage(sendMessageRequest);
