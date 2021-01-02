@@ -14,6 +14,8 @@ jobs:
     steps:
       - checkout
       - run: circleci-install java openjdk11
+      - run: java --version
+      - run: gradle --version
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
@@ -54,5 +56,9 @@ workflows:
   test_and_build:
     jobs:
       - dependencies
-      - test
-      - build
+      - test:
+          requires:
+            - dependencies
+      - build:
+          requires:
+            - test
