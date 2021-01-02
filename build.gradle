@@ -55,5 +55,6 @@ task jacoco(type: JacocoReport, dependsOn: 'test') {
 		html.enabled = true
 		xml.enabled = true
 		csv.enabled = false
+		xml.destination(file("${buildDir}/reports/jacoco/test/"))
 	}
 }
