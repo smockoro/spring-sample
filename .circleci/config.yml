@@ -6,21 +6,13 @@ version: 2.1
 jobs:
   dependencies:
     machine:
-      image: circleci/classic:edge
+      image: ubuntu-2004:202008-01
     working_directory: ~/spring-sample
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
     steps:
       - checkout
-      - run:
-          name: Install OpenJDK 11
-          command: |
-            sudo apt-get update && sudo apt-get install openjdk-11-jdk
-            sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
-            sudo update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
-            java -version
-      - run: gradle help
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
@@ -33,27 +25,25 @@ jobs:
 
   test:
     machine:
-      image: circleci/classic:edge
+      image: ubuntu-2004:202008-01
     working_directory: ~/spring-sample
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
     steps:
       - checkout
-      - run: circleci-install java openjdk11
       - run: docker-compose -f ./devtool/docker-compose.yml up -d
       - run: gradle test
 
   build:
     machine:
-      image: circleci/classic:edge
+      image: ubuntu-2004:202008-01
     working_directory: ~/spring-sample
     environment:
       JVM_OPTS: -Xmx3200m
       TERM: dumb
     steps:
       - checkout
-      - run: circleci-install java openjdk11
       - run: gradle build
 
 workflows:
