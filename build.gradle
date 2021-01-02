@@ -2,6 +2,8 @@ plugins {
 	id 'org.springframework.boot' version '2.4.1'
 	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 	id 'java'
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.8.4'
 }
 
 group = 'com.example'
@@ -36,4 +38,22 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+}
+
+jacoco {
+	toolVersion = "0.8.6"
+}
+
+task jacoco(type: JacocoReport, dependsOn: 'test') {
+	getSourceDirectories().setFrom(files('src/main/java'))
+	afterEvaluate {
+		getClassDirectories().setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: ['**/Main*'])
+		}))
+	}
+	reports {
+		html.enabled = true
+		xml.enabled = true
+		csv.enabled = false
+	}
 }
