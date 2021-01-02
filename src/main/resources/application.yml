@@ -1,2 +1,6 @@
 server:
   port : 8081
+aws:
+  sqs:
+    queue:
+      url: "http://localhost:4566/000000000000/sample-queue"

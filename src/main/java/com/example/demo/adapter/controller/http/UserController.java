@@ -46,4 +46,9 @@ public class UserController {
     public void postUserToSqs(@PathVariable(name = "id", required = true) String id) throws ResourceNotFoundException, JsonProcessingException {
         this.userUsecase.sendUserToQueue(id);
     }
+
+    @GetMapping("/users/receive")
+    public void receiveFromSqs() {
+        this.userUsecase.receiveUserFromQueue();
+    }
 }

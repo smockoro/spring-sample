@@ -1,8 +1,8 @@
 package com.example.demo.app.interactor;
 
-import com.example.demo.adapter.infrastructure.messanger.AwsSqsMessageProducer;
+import com.example.demo.adapter.infrastructure.messenger.AwsSqsMessenger;
 import com.example.demo.adapter.infrastructure.repository.InMemoryUserRepository;
-import com.example.demo.app.messanger.UserMessanger;
+import com.example.demo.app.messenger.UserMessenger;
 import com.example.demo.app.repository.UserRepository;
 import com.example.demo.app.usecase.UserUsecase;
 import com.example.demo.domain.entity.User;
@@ -16,11 +16,11 @@ import java.util.List;
 @Service
 public class UserInteractor implements UserUsecase {
     private final UserRepository userRepository;
-    private final UserMessanger userMessanger;
+    private final UserMessenger userMessanger;
 
     @Autowired
     public UserInteractor(InMemoryUserRepository userRepository,
-                          AwsSqsMessageProducer messageProducer) {
+                          AwsSqsMessenger messageProducer) {
         this.userRepository = userRepository;
         this.userMessanger = messageProducer;
     }
@@ -50,5 +50,10 @@ public class UserInteractor implements UserUsecase {
     public void sendUserToQueue(String id) throws ResourceNotFoundException, JsonProcessingException {
         User user = this.userRepository.selectById(id);
         this.userMessanger.sendMessage(user);
+    }
+
+    @Override
+    public void receiveUserFromQueue() {
+
     }
 }

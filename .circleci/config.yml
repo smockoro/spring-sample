@@ -4,39 +4,55 @@
 #
 version: 2.1
 jobs:
-  build:
-    docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:11-jdk
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
+  dependencies:
+    machine:
+      image: circleci/classic:edge
     working_directory: ~/spring-sample
-
     environment:
-      # Customize the JVM maximum heap limit
       JVM_OPTS: -Xmx3200m
       TERM: dumb
-
     steps:
       - checkout
-
-      # Download and cache dependencies
+      - circleci-install java openjdk11
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-
       - run: gradle dependencies
-
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
-      # run tests!
+  test:
+    machine:
+      image: circleci/classic:edge
+    working_directory: ~/spring-sample
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    steps:
+      - checkout
+      - circleci-install java openjdk11
+      - docker-compose -f ./devtool/docker-compose.yml up -d
       - run: gradle test
+
+  build:
+    machine:
+      image: circleci/classic:edge
+    working_directory: ~/spring-sample
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    steps:
+      - checkout
+      - circleci-install java openjdk11
+      - run: gradle build
+
+workflows:
+  version: 2.1
+  test_and_build:
+    jobs:
+      - dependencies
+      - test
+      - build
