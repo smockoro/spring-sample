@@ -13,7 +13,7 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - circleci-install java openjdk11
+      - run: circleci-install java openjdk11
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
@@ -33,8 +33,8 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - circleci-install java openjdk11
-      - docker-compose -f ./devtool/docker-compose.yml up -d
+      - run: circleci-install java openjdk11
+      - run: docker-compose -f ./devtool/docker-compose.yml up -d
       - run: gradle test
 
   build:
@@ -46,7 +46,7 @@ jobs:
       TERM: dumb
     steps:
       - checkout
-      - circleci-install java openjdk11
+      - run: circleci-install java openjdk11
       - run: gradle build
 
 workflows:
