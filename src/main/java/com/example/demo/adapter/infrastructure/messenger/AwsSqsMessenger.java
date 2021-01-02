@@ -8,6 +8,7 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class AwsSqsMessenger implements UserMessenger {
 
     private final AmazonSQS amazonSQS;
@@ -35,7 +37,7 @@ public class AwsSqsMessenger implements UserMessenger {
                 .withMessageBody(objectMapper.writeValueAsString(user))
                 .withDelaySeconds(5);
         SendMessageResult result = amazonSQS.sendMessage(sendMessageRequest);
-        System.out.println(result);
+        log.info("send user message -> {}", result);
     }
 
     @Override
@@ -45,14 +47,14 @@ public class AwsSqsMessenger implements UserMessenger {
                 .withQueueUrl(sqsQueueURL)
                 .withWaitTimeSeconds(5);
         ReceiveMessageResult result = amazonSQS.receiveMessage(receiveMessageRequest);
+        log.info("receive user message -> {}", result);
+
         if (result.getMessages().isEmpty()) {
             throw new ResourceNotFoundException("SQS empty");
         }
         Optional<Message> message = Optional.ofNullable(result.getMessages().get(MESSAGE_TOP));
         if (message.isPresent()) {
-            System.out.println(message.get());
-            User user = objectMapper.readValue(message.get().getBody(), User.class);
-            return user;
+            return objectMapper.readValue(message.get().getBody(), User.class);
         }
         throw new ResourceNotFoundException("SQS empty");
     }

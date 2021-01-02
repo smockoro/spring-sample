@@ -3,6 +3,7 @@ package com.example.demo.adapter.infrastructure.repository;
 import com.example.demo.app.repository.UserRepository;
 import com.example.demo.domain.entity.User;
 import com.example.demo.exception.ResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class InMemoryUserRepository implements UserRepository {
 
     private final HashMap<Long, User> userHashMap = new HashMap<>();
@@ -18,8 +20,7 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public List<User> selectAll() {
-        List<User> users = new ArrayList<User>(this.userHashMap.values());
-        return users;
+        return new ArrayList<>(this.userHashMap.values());
     }
 
     @Override

@@ -12,5 +12,5 @@ public interface UserUsecase {
     User createUser(User user);
     void deleteUserById(String id) throws ResourceNotFoundException;
     void sendUserToQueue(String id) throws ResourceNotFoundException, JsonProcessingException;
-    void receiveUserFromQueue();
+    User receiveUserFromQueue() throws ResourceNotFoundException, JsonProcessingException;
 }

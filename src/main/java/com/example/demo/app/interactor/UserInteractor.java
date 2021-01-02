@@ -8,21 +8,23 @@ import com.example.demo.app.usecase.UserUsecase;
 import com.example.demo.domain.entity.User;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class UserInteractor implements UserUsecase {
     private final UserRepository userRepository;
-    private final UserMessenger userMessanger;
+    private final UserMessenger userMessenger;
 
     @Autowired
     public UserInteractor(InMemoryUserRepository userRepository,
                           AwsSqsMessenger messageProducer) {
         this.userRepository = userRepository;
-        this.userMessanger = messageProducer;
+        this.userMessenger = messageProducer;
     }
 
     @Override
@@ -37,8 +39,7 @@ public class UserInteractor implements UserUsecase {
 
     @Override
     public User createUser(User user) {
-        User createdUser = this.userRepository.insert(user);
-        return createdUser;
+        return this.userRepository.insert(user);
     }
 
     @Override
@@ -49,11 +50,11 @@ public class UserInteractor implements UserUsecase {
     @Override
     public void sendUserToQueue(String id) throws ResourceNotFoundException, JsonProcessingException {
         User user = this.userRepository.selectById(id);
-        this.userMessanger.sendMessage(user);
+        this.userMessenger.sendMessage(user);
     }
 
     @Override
-    public void receiveUserFromQueue() {
-
+    public User receiveUserFromQueue() throws ResourceNotFoundException, JsonProcessingException {
+        return this.userMessenger.receiveMessage();
     }
 }
