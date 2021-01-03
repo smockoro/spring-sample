@@ -1,4 +1,4 @@
-package com.example.demo.adapter.infrastructure.messenger;
+package com.example.demo.helper;
 
 import com.example.demo.domain.entity.User;
 import org.junit.jupiter.api.extension.ParameterContext;

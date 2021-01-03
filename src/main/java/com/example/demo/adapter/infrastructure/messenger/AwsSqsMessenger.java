@@ -22,19 +22,21 @@ public class AwsSqsMessenger implements UserMessenger {
     private final AmazonSQS amazonSQS;
     private final String sqsQueueURL;
     private final Integer MESSAGE_TOP = 0;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public AwsSqsMessenger(AmazonSQS amazonSQS, @Value("${aws.sqs.queue.url}") String sqsQueueURL) {
+    public AwsSqsMessenger(AmazonSQS amazonSQS, @Value("${aws.sqs.queue.url}") String sqsQueueURL,
+                           ObjectMapper objectMapper) {
         this.amazonSQS = amazonSQS;
         this.sqsQueueURL = sqsQueueURL;
+        this.objectMapper = objectMapper;
     }
 
 
     public void sendMessage(@NonNull User user) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
         SendMessageRequest sendMessageRequest = new SendMessageRequest()
                 .withQueueUrl(sqsQueueURL)
-                .withMessageBody(objectMapper.writeValueAsString(user))
+                .withMessageBody(this.objectMapper.writeValueAsString(user))
                 .withDelaySeconds(5);
         SendMessageResult result = amazonSQS.sendMessage(sendMessageRequest);
         log.info("send user message -> {}", result);
@@ -42,7 +44,6 @@ public class AwsSqsMessenger implements UserMessenger {
 
     @Override
     public User receiveMessage() throws JsonProcessingException, ResourceNotFoundException {
-        ObjectMapper objectMapper = new ObjectMapper();
         ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest()
                 .withQueueUrl(sqsQueueURL)
                 .withWaitTimeSeconds(5);
@@ -54,7 +55,7 @@ public class AwsSqsMessenger implements UserMessenger {
         }
         Optional<Message> message = Optional.ofNullable(result.getMessages().get(MESSAGE_TOP));
         if (message.isPresent()) {
-            return objectMapper.readValue(message.get().getBody(), User.class);
+            return this.objectMapper.readValue(message.get().getBody(), User.class);
         }
         throw new ResourceNotFoundException("SQS empty");
     }

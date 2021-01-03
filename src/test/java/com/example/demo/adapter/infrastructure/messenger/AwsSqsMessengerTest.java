@@ -11,6 +11,7 @@ import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.example.demo.domain.entity.User;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.helper.UserAggregatorTestHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
@@ -29,6 +30,7 @@ class AwsSqsMessengerTest {
     private static String sendQueueURL;
     private static String receiveQueueURL;
     private static String emptyQueueURL;
+    private static ObjectMapper objectMapper;
 
     @BeforeAll
     static void setupSqs() {
@@ -53,6 +55,8 @@ class AwsSqsMessengerTest {
         receiveQueueURL = createQueueResult.getQueueUrl();
         createQueueResult = amazonSQS.createQueue("test-queue-empty");
         emptyQueueURL = createQueueResult.getQueueUrl();
+
+        objectMapper = new ObjectMapper();
     }
 
     @AfterAll
@@ -71,7 +75,7 @@ class AwsSqsMessengerTest {
             ",,",
     })
     void sendMessage(@AggregateWith(UserAggregatorTestHelper.class) User user) {
-        AwsSqsMessenger awsSqsMessenger = new AwsSqsMessenger(amazonSQS, sendQueueURL);
+        AwsSqsMessenger awsSqsMessenger = new AwsSqsMessenger(amazonSQS, sendQueueURL, objectMapper);
         assertDoesNotThrow(() -> awsSqsMessenger.sendMessage(user));
     }
 
@@ -86,7 +90,7 @@ class AwsSqsMessengerTest {
     })
     void receiveMessage(@AggregateWith(UserAggregatorTestHelper.class) User expectedUser) {
         try {
-            AwsSqsMessenger awsSqsMessenger = new AwsSqsMessenger(amazonSQS, receiveQueueURL);
+            AwsSqsMessenger awsSqsMessenger = new AwsSqsMessenger(amazonSQS, receiveQueueURL, objectMapper);
             sendTestMessageToSqs(receiveQueueURL, expectedUser);
             User actualUser = awsSqsMessenger.receiveMessage();
             assertEquals(expectedUser, actualUser);
@@ -97,8 +101,8 @@ class AwsSqsMessengerTest {
 
     @Test
     void receiveMessageWithNotFoundException() {
-        AwsSqsMessenger awsSqsMessenger = new AwsSqsMessenger(amazonSQS, emptyQueueURL);
-        assertThrows(ResourceNotFoundException.class, () -> awsSqsMessenger.receiveMessage());
+        AwsSqsMessenger awsSqsMessenger = new AwsSqsMessenger(amazonSQS, emptyQueueURL, objectMapper);
+        assertThrows(ResourceNotFoundException.class, awsSqsMessenger::receiveMessage);
     }
 
     private void sendTestMessageToSqs(String receiveQueueURL, User user) throws JsonProcessingException {
