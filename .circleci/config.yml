@@ -39,6 +39,14 @@ jobs:
       - run: ./gradlew dependencies
       - save_gradle_cache
 
+  check:
+    executor:
+      name: machine
+    steps:
+      - checkout
+      - restore_gradle_cache
+      - run: ./gradlew check -x test
+
   test:
     executor:
       name: machine
@@ -46,25 +54,27 @@ jobs:
       - checkout
       - docker_compose_up
       - restore_gradle_cache
-      - run: ./gradlew test jacocoTestReport coveralls
+      - run: ./gradlew check test jacocoTestReport coveralls
 
   build:
     executor:
       name: machine
     steps:
       - checkout
-      - docker_compose_up
       - restore_gradle_cache
-      - run: ./gradlew build
+      - run: ./gradlew build -x test
 
 workflows:
   version: 2.1
   test_and_build:
     jobs:
       - dependencies
-      - test:
+      - check:
           requires:
             - dependencies
+      - test:
+          requires:
+            - check
       - build:
           requires:
             - test
