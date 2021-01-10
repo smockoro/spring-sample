@@ -23,22 +23,18 @@
  * SOFTWARE.
  * @formatter:on
  */
-package com.example.demo.helper;
+package com.example.demo.adapter.infrastructure.repository.helper;
 
-import com.example.demo.domain.entity.User;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
-import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
-import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
+import java.util.concurrent.atomic.AtomicLong;
+import org.springframework.stereotype.Component;
 
-public class UserAggregatorTestHelper implements ArgumentsAggregator {
+@Component
+public class LongSerialNumberGenerator implements SerialNumberGenerator{
 
-    @Override
-    public User aggregateArguments(ArgumentsAccessor accessor, ParameterContext context) throws ArgumentsAggregationException {
-        User user = new User();
-        user.setId(accessor.getLong(0));
-        user.setName(accessor.getString(1));
-        user.setAge(accessor.getString(2));
-        return user;
-    }
+  private final AtomicLong counter = new AtomicLong(0L);
+
+  @Override
+  public Long generate() {
+    return counter.getAndIncrement();
+  }
 }

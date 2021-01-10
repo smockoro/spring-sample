@@ -1,11 +1,14 @@
 plugins {
-	id 'org.springframework.boot' version '2.4.1'
-	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-	id 'java'
-	id 'jacoco'
-	id 'com.github.kt3k.coveralls' version '2.8.4'
-	id 'checkstyle'
-	id 'com.github.hierynomus.license' version '0.15.0'
+    id 'org.springframework.boot' version '2.4.1'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'jacoco'
+    id 'com.github.kt3k.coveralls' version '2.8.4'
+    id 'checkstyle'
+    id 'com.github.hierynomus.license' version '0.15.0'
+    id 'project-report'
+    id "com.github.spotbugs" version "4.6.0"
+    //id 'pmd'
 }
 
 group = 'com.example'
@@ -13,65 +16,63 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
-	google()
-	jcenter()
+    mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {
-	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.926')
-	implementation 'com.amazonaws:aws-java-sdk-sqs'
-	implementation 'com.amazonaws:amazon-kinesis-producer:0.14.3'
-	implementation 'software.amazon.kinesis:amazon-kinesis-client:2.3.2'
-	implementation 'org.slf4j:slf4j-api:1.7.30'
-	implementation 'ch.qos.logback:logback-core:1.2.3'
-	implementation 'ch.qos.logback:logback-classic:1.2.3'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.926')
+    implementation 'com.amazonaws:aws-java-sdk-sqs'
+    implementation 'com.amazonaws:amazon-kinesis-producer:0.14.3'
+    implementation 'software.amazon.kinesis:amazon-kinesis-client:2.3.2'
+    implementation 'org.slf4j:slf4j-api:1.7.30'
+    implementation 'ch.qos.logback:logback-core:1.2.3'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+license {
+    header rootProject.file('devtool/formatter/HEADER')
 }
 
 checkstyle {
-	toolVersion = '8.39'
-	configFile file("$rootDir/devtool/checkstyle/checkstyle.xml")
-	ignoreFailures true // checkstyleエラーが出てもビルドは継続する。
+    toolVersion = '8.39'
+    configFile file("$rootDir/devtool/checkstyle/checkstyle.xml")
+    ignoreFailures true // checkstyleエラーが出てもビルドは継続する。
 }
 
 test {
-	useJUnitPlatform()
-}
-
-tasks.withType(Checkstyle) {
-	reports {
-		html.stylesheet resources.text.fromFile('config/xsl/checkstyle-custom.xsl')
-	}
+    useJUnitPlatform()
 }
 
 jacoco {
-	toolVersion = "0.8.6"
+    toolVersion = "0.8.6"
 }
 
 task jacoco(type: JacocoReport, dependsOn: 'test') {
-	getSourceDirectories().setFrom(files('src/main/java'))
-	afterEvaluate {
-		getClassDirectories().setFrom(files(classDirectories.files.collect {
-			fileTree(dir: it, exclude: ['**/Main*'])
-		}))
-	}
-	reports {
-		html.enabled = true
-		xml.enabled = true
-		csv.enabled = false
-		xml.destination(file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml"))
-	}
+    getSourceDirectories().setFrom(files('src/main/java'))
+    afterEvaluate {
+        getClassDirectories().setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['**/Main*'])
+        }))
+    }
+    reports {
+        html.enabled = true
+        xml.enabled = true
+        csv.enabled = false
+        xml.destination(file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml"))
+    }
 }
 
