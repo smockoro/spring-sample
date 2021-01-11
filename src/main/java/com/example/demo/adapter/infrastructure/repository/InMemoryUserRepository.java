@@ -69,6 +69,7 @@ public class InMemoryUserRepository implements UserRepository {
 
   @Override
   public User insert(User user) {
+    log.info(serialNumberGenerator.generate().toString());
     Long generateId = serialNumberGenerator.generate().longValue();
     user.setId(generateId);
     this.userHashMap.put(generateId, user);

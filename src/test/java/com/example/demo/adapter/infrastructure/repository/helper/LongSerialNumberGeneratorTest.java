@@ -25,7 +25,20 @@
  */
 package com.example.demo.adapter.infrastructure.repository.helper;
 
-public interface SerialNumberGenerator {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-  Number generate();
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+class LongSerialNumberGeneratorTest {
+
+  @ParameterizedTest
+  @DisplayName("generate value")
+  @ValueSource(longs = {0L})
+  void generate(Long expected) {
+    LongSerialNumberGenerator generator = new LongSerialNumberGenerator();
+    Long actual = generator.generate();
+    assertEquals(expected, actual);
+  }
 }

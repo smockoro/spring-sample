@@ -25,23 +25,73 @@
  */
 package com.example.demo.adapter.infrastructure.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
+
+import com.example.demo.adapter.infrastructure.repository.helper.LongSerialNumberGenerator;
+import com.example.demo.domain.entity.User;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.helper.UserAggregatorTestHelper;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 class InMemoryUserRepositoryTest {
 
-    @Test
-    void selectAll() {
-    }
+  @Mock
+  LongSerialNumberGenerator serialNumberGenerator;
 
-    @Test
-    void selectById() {
-    }
+  @InjectMocks
+  InMemoryUserRepository repository;
 
-    @Test
-    void insert() {
-    }
+  @BeforeEach
+  void setup() {
+    MockitoAnnotations.openMocks(this);
+  }
 
-    @Test
-    void deleteById() {
+  @Test
+  @DisplayName("hash map all display")
+  void selectAll() {
+    List<User> expected = new ArrayList<>();
+    List<User> actual = repository.selectAll();
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  @DisplayName("not found and occur exception")
+  void selectById() {
+    assertThrows(ResourceNotFoundException.class, () -> repository.selectById("1"));
+  }
+
+  @ParameterizedTest
+  @DisplayName("create user in memory hash map")
+  @CsvSource({
+      "0,sample,18",
+      ",sample,18",
+      "2,,18",
+      "3,sample,",
+      "4,,",
+  })
+  void insert(@AggregateWith(UserAggregatorTestHelper.class) User expectedUser) {
+    if (expectedUser.getId() == null) {
+      expectedUser.setId(0L);
     }
+    doReturn(expectedUser.getId()).when(serialNumberGenerator).generate();
+    User actualUser = repository.insert(expectedUser);
+    assertEquals(expectedUser, actualUser);
+  }
+
+  @Test
+  void deleteById() {
+    assertThrows(ResourceNotFoundException.class, () -> repository.deleteById("1"));
+  }
 }

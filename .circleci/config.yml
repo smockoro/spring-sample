@@ -54,7 +54,7 @@ jobs:
       - checkout
       - docker_compose_up
       - restore_gradle_cache
-      - run: ./gradlew check test jacocoTestReport coveralls
+      - run: ./gradlew test jacocoTestReport coveralls
 
   build:
     executor:
